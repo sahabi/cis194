@@ -1,3 +1,4 @@
+import Data.List
 -- exercise 1
 fun1 :: [Int] -> Int
 fun1 = product . map (subtract 2) . filter even 
@@ -35,4 +36,10 @@ map' f = foldr f' [] where f' = (:) . f
 
 myFoldl :: (a -> b -> a) -> a -> [b] -> a
 myFoldl f base = foldr (flip f) base . reverse
+
+-- exercise 4
+
+sieveSundaram :: Int -> [Int]
+sieveSundaram n = let rm = filter (<= n) [i + j + 2*i*j | i <- [1..n], j <- [1..n]] in 
+                map ((+1) . (*2)) $ [1..n] \\ rm
 
