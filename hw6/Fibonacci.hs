@@ -35,3 +35,13 @@ streamMap f (Cons a b) = Cons (f a) (streamMap f b)
 
 streamFromSeed :: (a -> a) -> a -> Stream a
 streamFromSeed f x = Cons x (streamFromSeed f (f x))
+
+-- exercise 5
+
+nats :: Stream Integer
+nats = streamFromSeed (+1) 0
+
+
+
+ruler :: Stream Integer
+ruler = streamInterleave (streamRepeat 0) $ streamMap succ ruler
