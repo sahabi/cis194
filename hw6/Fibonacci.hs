@@ -24,3 +24,14 @@ streamFromList (x:xs) = Cons x (streamFromList xs)
 instance Show a => Show (Stream a) where
   show = show . take 20 . streamToList
 
+
+-- exercise 4
+
+streamRepeat :: a -> Stream a
+streamRepeat x = Cons x (streamRepeat x)
+
+streamMap :: (a -> b) -> Stream a -> Stream b
+streamMap f (Cons a b) = Cons (f a) (streamMap f b)
+
+streamFromSeed :: (a -> a) -> a -> Stream a
+streamFromSeed f x = Cons x (streamFromSeed f (f x))
