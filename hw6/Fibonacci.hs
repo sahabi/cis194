@@ -1,3 +1,6 @@
+{-# LANGUAGE FlexibleInstances #-}
+{-# OPTIONS_GHC -fno-warn-missing-methods #-}
+
 -- exercise 1
 fib :: Integer -> Integer
 fib 0 = 0
@@ -41,7 +44,23 @@ streamFromSeed f x = Cons x (streamFromSeed f (f x))
 nats :: Stream Integer
 nats = streamFromSeed (+1) 0
 
-
+streamInterleave :: Stream a -> Stream a -> Stream a
+streamInterleave (Cons x xs) ys = Cons x (streamInterleave ys xs)
 
 ruler :: Stream Integer
 ruler = streamInterleave (streamRepeat 0) $ streamMap succ ruler
+
+-- exercise 6
+x :: Stream Integer
+x = Cons 0 (Cons 1 (streamRepeat 0))
+
+instance Num (Stream Integer) where
+    fromInteger n = Cons n (streamRepeat 0)
+    negate (Cons y ys) = Cons (-y) (negate ys)
+    (+) (Cons y ys) (Cons x xs) = Cons (y + x) (ys + xs)
+    (*) (Cons y ys) b@(Cons x xs) = Cons (y * x) (streamMap (*y) xs + (ys * b))
+
+instance Fractional (Stream Integer) where
+    (/) a@(Cons y ys) b@(Cons x xs) =  q where q = Cons (y `div` x) (streamMap (`div` x) (ys - (q * xs))) 
+
+fibs10 = x / (1 - x - x * x) 
