@@ -1,11 +1,24 @@
 {-# LANGUAGE FlexibleInstances, TypeSynonymInstances #-}
-
+import Sized
 import Data.Monoid
 --import StringBuffer
 --import Buffer
 --import Editor
-
-
+sizeJoinList =
+  Append (Size 3)
+      (Append (Size 2)
+        (Single (Size 1) "hi")
+        (Single (Size 1) "bye")
+      )
+     (Single (Size 1) "tschau")
+someJoinList =
+  Append (Product 210)
+    (Append (Product 30)
+      (Single (Product 5) 'y')
+      (Append (Product 6)
+        (Single (Product 2) 'e')
+        (Single (Product 3) 'a')))
+    (Single (Product 7) 'h')
 -- Exercise 1
 data JoinList m a = Empty
                   | Single m a
@@ -21,3 +34,23 @@ tag jl = case jl of
   Empty        -> mempty
   Single m _   -> m
   Append m _ _ -> m
+
+-- exercise 2
+jlToList :: JoinList m a -> [a]
+jlToList Empty          = []
+jlToList (Single _ a) = [a]
+jlToList (Append _ a b) = jlToList a ++ jlToList b
+
+-- | Finds the JoinList element at the specified index.
+-- | (indexJ i jl) == (jlToList jl !!? i)
+indexJ :: (Sized b, Monoid b) => Int -> JoinList b a -> Maybe a
+indexJ index (Single _ a)
+  | index == 0 = Just a
+  | otherwise  = Nothing
+indexJ index (Append m l1 l2)
+  | index < 0 || index > size0 = Nothing
+  | index < size1              = indexJ index l1
+  | otherwise                  = indexJ (index - size1) l2
+    where size0 = getSize . size $ m
+          size1 = getSize . size . tag $ l1
+indexJ _ _ = Nothing
