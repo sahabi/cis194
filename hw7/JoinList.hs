@@ -54,3 +54,31 @@ indexJ index (Append m l1 l2)
     where size0 = getSize . size $ m
           size1 = getSize . size . tag $ l1
 indexJ _ _ = Nothing
+
+dropJ :: (Sized b, Monoid b) =>
+        Int -> JoinList b a -> JoinList b a
+dropJ n jl
+    | n == 0 = jl
+    
+dropJ n (Single a b)
+    | n == 0 = Single a b
+    | otherwise = Empty
+dropJ n (Append m l1 l2)
+    | n > size0 = Empty
+    | n >= size1 = dropJ (n - size1) l2
+    | otherwise = dropJ n l1 +++ l2
+      where size0 = getSize . size $ m
+            size1 = getSize . size. tag $ l1
+dropJ _ _ = Empty
+-- exercise 3
+takeJ :: (Sized b, Monoid b) =>
+        Int -> JoinList b a -> JoinList b a
+takeJ n (Single a b)
+    | n > 0 = Single a b
+takeJ n jl@(Append m l1 l2)
+    | n > size0 = jl
+    | n < size1 = takeJ n l1
+    | n >= size1 = l1 +++ takeJ (n - size1) l2
+      where size0 = getSize . size $ m
+            size1 = getSize . size. tag $ l1
+takeJ _ _ = Empty
