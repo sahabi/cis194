@@ -23,7 +23,7 @@ score c
     | toUpper c == 'K' = Score 5
     | toUpper c `elem` ['J','X'] = Score 8
     | toUpper c `elem` ['Q','Z'] = Score 10
-score _ = 0
+score _ = Score 0
 
 scoreString :: String -> Score
 scoreString = foldl (+) 0 . map score

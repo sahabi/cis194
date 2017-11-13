@@ -1,9 +1,11 @@
 {-# LANGUAGE FlexibleInstances, TypeSynonymInstances #-}
+module JoinList where
 import Sized
 import Data.Monoid
 import Scrabble
 --import StringBuffer
---import Buffer
+import Buffer
+import Editor
 --import Editor
 sizeJoinList =
   Append (Size 3)
@@ -25,6 +27,17 @@ data JoinList m a = Empty
                   | Single m a
                   | Append m (JoinList m a) (JoinList m a)
   deriving (Eq, Show)
+
+instance Buffer (JoinList (Score, Size) String) where
+    toString = unlines . jlToList  
+    fromString = foldl (\jl str -> jl +++ scoreLine' str) Empty . lines
+      where scoreLine' str = Single (scoreString str, 1) str 
+    line = indexJ
+    replaceLine n str jl = takeJ n jl +++ fromString str +++ dropJ (n+1) jl
+    numLines = getSize . snd . tag
+    value = getScore . fst . tag
+
+--main = runEditor editor (fromString "test" :: (JoinList (Score, Size) String))
 
 (+++) :: Monoid m => JoinList m a -> JoinList m a -> JoinList m a
 (+++) x y = Append (tag x <> tag y) x y
