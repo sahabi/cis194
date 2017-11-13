@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleInstances, TypeSynonymInstances #-}
 import Sized
 import Data.Monoid
+import Scrabble
 --import StringBuffer
 --import Buffer
 --import Editor
@@ -70,7 +71,7 @@ dropJ n (Append m l1 l2)
       where size0 = getSize . size $ m
             size1 = getSize . size. tag $ l1
 dropJ _ _ = Empty
--- exercise 3
+
 takeJ :: (Sized b, Monoid b) =>
         Int -> JoinList b a -> JoinList b a
 takeJ n (Single a b)
@@ -82,3 +83,8 @@ takeJ n jl@(Append m l1 l2)
       where size0 = getSize . size $ m
             size1 = getSize . size. tag $ l1
 takeJ _ _ = Empty
+
+-- exercise 3
+
+scoreLine :: String -> JoinList Score String
+scoreLine s = Single (scoreString s) s
