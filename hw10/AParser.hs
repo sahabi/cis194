@@ -64,35 +64,46 @@ first f (x,s) = (f x, s)
 second :: (b -> c) -> (a,b) -> (a,c)
 second f (x,s) = (x, f s)
 
+-- exercise 1
 
 instance Functor Parser where
-    fmap f (Parser rp) = Parser ((fmap (first f)) . rp)
+  fmap f (Parser rp)  = Parser (fmap (first f) . rp)
 
 instance Applicative Parser where
-    pure a = Parser f where f str = Just (a, str)
-    p1 <*> p2 = Parser f where
-                f str = case runParser p1 str of
-                         Nothing -> Nothing
-                         Just (f1,st) -> (first f1) <$> (runParser p2 st)
+  pure a = Parser f where f str = Just (a, str)
+
+  p1 <*> p2 = Parser f
+    where
+      f str = case runParser p1 str of
+        Nothing -> Nothing
+        Just (a, str) -> first a <$> runParser p2 str
 
 -- exercise 3
+
 abParser :: Parser (Char, Char)
 abParser = (,) <$> char 'a' <*> char 'b'
 
 abParser_ :: Parser ()
-abParser_ = (\x y -> ()) <$> char 'a' <*> char 'b'
+abParser_ = const () <$> abParser
 
-intPair :: Parser [Integer]
-intPair = (\x y -> [x,y]) <$> posInt <* char ' ' <*> posInt
 
 -- exercise 4
+
+--instance Alternative Parser where
+--  empty = Parser f
+--    where
+--      f str = Nothing
+--  p1 <|> p2 = Parser f
+--    where
+--      f str = case runParser p1 str of
+--                Nothing -> runParser p2 str
+--                Just (a, str) -> Just (a, str)
 instance Alternative Parser where
-  empty = Parser $ const empty
-  p1 <|> p2 = Parser $ \s -> runParser p1 s <|> runParser p2 s
-
+  empty = Parser (const Nothing)
+  p1 <|> p2 = Parser f
+    where f str = runParser p1 str <|> runParser p2 str
 -- exercise 5
-ignore :: Parser a -> Parser ()
-ignore = (const () <$>)
 
-intOrUppercase :: Parser Char
-intOrUppercase = posInt <|> (satisfy isUpper)
+intOrUppercase :: Parser ()
+intOrUppercase = const () <$> posInt <|> const () <$> satisfy isUpper
+
