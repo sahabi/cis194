@@ -100,8 +100,7 @@ abParser_ = const () <$> abParser
 --                Just (a, str) -> Just (a, str)
 instance Alternative Parser where
   empty = Parser (const Nothing)
-  p1 <|> p2 = Parser f
-    where f str = runParser p1 str <|> runParser p2 str
+  Parser p1 <|> Parser p2 = Parser $ liftA2 (<|>) p1 p2
 -- exercise 5
 
 intOrUppercase :: Parser ()
